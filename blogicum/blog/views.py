@@ -40,12 +40,11 @@ class CommentMixin(LoginRequiredMixin):
 class PostListView(ListView):
     model = Post
     queryset = Post.objects.select_related(
-        'author', 'category', 'location'
-        ).filter(
-        pub_date__lte=datetime.datetime.now(),
-        is_published=True,
-        category__is_published=True
-    )
+        'author', 'category', 'location').filter(
+            pub_date__lte=datetime.datetime.now(),
+            is_published=True,
+            category__is_published=True
+            )
     template_name = 'blog/index.html'
     paginate_by = 10
 

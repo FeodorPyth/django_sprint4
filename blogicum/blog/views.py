@@ -44,7 +44,7 @@ class PostListView(ListView):
             pub_date__lte=datetime.datetime.now(),
             is_published=True,
             category__is_published=True
-            )
+    )
     template_name = 'blog/index.html'
     paginate_by = 10
 

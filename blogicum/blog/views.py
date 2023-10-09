@@ -9,32 +9,10 @@ from django.urls import reverse
 
 from .models import Post, Category, Comment, User
 from .forms import CommentForm, PostForm, ProfileForm
+from .mixins import PostMixin, CommentMixin
 
 
-class PostMixin(LoginRequiredMixin):
-    model = Post
-    template_name = 'blog/create.html'
-
-
-class CommentMixin(LoginRequiredMixin):
-    model = Comment
-    template_name = 'blog/comment.html'
-    pk_url_kwarg = 'comment_id'
-
-    def dispatch(self, request, *args, **kwargs):
-        instance = get_object_or_404(
-            Comment,
-            id=kwargs['comment_id'],
-        )
-        if instance.author != request.user:
-            return redirect('blog:post_detail', id=kwargs['post_id'])
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_success_url(self):
-        return reverse(
-            'blog:post_detail',
-            kwargs={'id': self.kwargs['post_id']}
-        )
+OBJECTS_BY_PAGES = 10
 
 
 class PostListView(ListView):
@@ -46,7 +24,7 @@ class PostListView(ListView):
             category__is_published=True
     )
     template_name = 'blog/index.html'
-    paginate_by = 10
+    paginate_by = OBJECTS_BY_PAGES
 
 
 class PostDetailView(DetailView):
@@ -82,7 +60,7 @@ class PostDetailView(DetailView):
 
 class CategoryListView(ListView):
     model = Post
-    paginate_by = 10
+    paginate_by = OBJECTS_BY_PAGES
     template_name = 'blog/category.html'
 
     def get_queryset(self):
@@ -189,7 +167,7 @@ class CommentDeleteView(CommentMixin, DeleteView):
 class ProfileListView(ListView):
     model = Post
     template_name = 'blog/profile.html'
-    paginate_by = 10
+    paginate_by = OBJECTS_BY_PAGES
 
     def get_queryset(self):
         return Post.objects.select_related('author').filter(
